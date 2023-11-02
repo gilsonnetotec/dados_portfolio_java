@@ -3,11 +3,11 @@ package br.com.codegroup.codegrouptest.services;
 import br.com.codegroup.codegrouptest.dto.PessoaDTO;
 import br.com.codegroup.codegrouptest.entities.Pessoa;
 import br.com.codegroup.codegrouptest.repositories.PessoaRepository;
+import br.com.codegroup.codegrouptest.services.exceptions.EntityNotFoundException;
+import br.com.codegroup.codegrouptest.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class PessoaService {
@@ -28,8 +28,11 @@ public class PessoaService {
             entity = repository.save(entity);
 
             return new PessoaDTO(entity);
-        }catch (Exception e){
-            return dto;
+        }catch (EntityNotFoundException e){
+            if(dto.getNome() == null){
+                throw new ResourceNotFoundException("Nome não pode ter valor null");
+            }
+            throw new ResourceNotFoundException("Erro: "+e);
         }
     }
 }
