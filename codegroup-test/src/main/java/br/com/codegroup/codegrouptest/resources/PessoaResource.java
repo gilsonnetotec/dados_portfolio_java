@@ -3,15 +3,18 @@ package br.com.codegroup.codegrouptest.resources;
 import br.com.codegroup.codegrouptest.dto.PessoaDTO;
 import br.com.codegroup.codegrouptest.services.PessoaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -22,6 +25,35 @@ public class PessoaResource {
 
     @Autowired
     private PessoaService service;
+
+    @Operation(description = "Buscar todas as pessoas")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Retorno OK da Lista de transações"),
+            @ApiResponse(responseCode = "401", description = "Erro de autenticação dessa API"),
+            @ApiResponse(responseCode = "403", description = "Erro de autorização dessa API"),
+            @ApiResponse(responseCode = "404", description = "Recurso não encontrado"),})
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<PessoaDTO>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "linesPerPage", defaultValue = "10") Integer linesPerPage,
+            @RequestParam(value = "orderBy", defaultValue = "id") String orderBy,
+            @RequestParam(value = "direction", defaultValue = "DESC") String direction
+    ){
+        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
+        Page<PessoaDTO> list = service.findAll(pageRequest);
+        return ResponseEntity.ok().body(list);
+    }
+
+    @Operation(description = "API para buscar uma categoria por id")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Retorno OK da Lista de transações"),
+            @ApiResponse(responseCode = "401", description = "Erro de autenticação dessa API"),
+            @ApiResponse(responseCode = "403", description = "Erro de autorização dessa API"),
+            @ApiResponse(responseCode = "404", description = "Recurso não encontrado"),})
+    @Parameters(value = {@Parameter(name = "id", in = ParameterIn.PATH)})
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PessoaDTO> findById(@PathVariable Long id){
+        PessoaDTO dto = service.findById(id);
+        return ResponseEntity.ok().body(dto);
+    }
 
     @Operation(description = "Criando Pessoa")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Retorno OK da criação"),
