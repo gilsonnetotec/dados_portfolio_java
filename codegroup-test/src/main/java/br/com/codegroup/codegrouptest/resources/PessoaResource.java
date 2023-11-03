@@ -43,7 +43,7 @@ public class PessoaResource {
         return ResponseEntity.ok().body(list);
     }
 
-    @Operation(description = "API para buscar uma categoria por id")
+    @Operation(description = "Buscar uma pessoa por id")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Retorno OK da Lista de transações"),
             @ApiResponse(responseCode = "401", description = "Erro de autenticação dessa API"),
             @ApiResponse(responseCode = "403", description = "Erro de autorização dessa API"),
@@ -65,5 +65,29 @@ public class PessoaResource {
         dto = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
         return ResponseEntity.created(uri).body(dto);
+    }
+
+    @Operation(description = "Atualizar uma pessoa por id")
+    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Retorno OK da remoção"),
+            @ApiResponse(responseCode = "401", description = "Erro de autenticação dessa API"),
+            @ApiResponse(responseCode = "403", description = "Erro de autorização dessa API"),
+            @ApiResponse(responseCode = "404", description = "Recurso não encontrado"),})
+    @Parameters(value = {@Parameter(name = "id", in = ParameterIn.PATH)})
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PessoaDTO> update(@PathVariable Long id, @RequestBody PessoaDTO dto){
+        dto = service.update(id, dto);
+        return ResponseEntity.ok().body(dto);
+    }
+
+    @Operation(description = "Remover uma pessoa por id")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Retorno OK da atualização"),
+            @ApiResponse(responseCode = "401", description = "Erro de autenticação dessa API"),
+            @ApiResponse(responseCode = "403", description = "Erro de autorização dessa API"),
+            @ApiResponse(responseCode = "404", description = "Recurso não encontrado"),})
+    @Parameters(value = {@Parameter(name = "id", in = ParameterIn.PATH)})
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PessoaDTO> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
